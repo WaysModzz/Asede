@@ -602,7 +602,7 @@ async function connectWhatsAppBot() {
     console.log('Simulasi koneksi WhatsApp Bot');
     
     // Dalam implementasi nyata, Anda akan menggunakan kode seperti ini:
-    
+    /*
     const { state, saveCreds } = await useMultiFileAuthState("./session");
     const { version } = await fetchLatestBaileysVersion();
     
@@ -621,5 +621,5 @@ async function connectWhatsAppBot() {
             console.log('Bot terhubung');
         }
     });
-    
+    */
 }
