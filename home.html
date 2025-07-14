@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MajesticXg - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body class="dashboard-page">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#9c27b0" d="M100,0 C155.228,0 200,44.772 200,100 C200,155.228 155.228,200 100,200 C44.772,200 0,155.228 0,100 C0,44.772 44.772,0 100,0 Z M80,140 L80,60 L120,60 L120,100 L140,80 L140,120 L120,100 L120,140 L80,140 Z"/>
+            </svg>
+            <h2>Majestic<span>Xg</span></h2>
+        </div>
+        
+        <nav class="sidebar-menu">
+            <ul>
+                <li class="active"><a href="#dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#bug-android"><i class="fas fa-mobile-alt"></i> Bug Android</a></li>
+                <li><a href="#logs"><i class="fas fa-clipboard-list"></i> Logs</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="username" id="loggedInUser">User</span>
+                    <span class="user-status">Online</span>
+                </div>
+            </div>
+            <button id="logoutButton" class="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </div>
+    
+    <main class="main-content">
+        <div class="content-header">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="server-status">
+                <span class="status-indicator active"></span>
+                <span>Server Status: <span id="serverStatus">Online</span></span>
+                <span class="uptime">Uptime: <span id="serverUptime">00:00:00</span></span>
+            </div>
+        </div>
+        
+        <div class="dashboard-content" id="dashboardContent">
+            <!-- Default Dashboard View -->
+            <div class="welcome-section animate__animated animate__fadeIn">
+                <div class="welcome-card">
+                    <h2>Selamat Datang di MajesticXg</h2>
+                    <p>WhatsApp Gateway Premium dengan fitur lengkap untuk kebutuhan Anda.</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card purple">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Total Requests</h3>
+                        <span id="totalRequests">0</span>
+                    </div>
+                    <div class="stat-card deep-purple">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Success</h3>
+                        <span id="successRequests">0</span>
+                    </div>
+                    <div class="stat-card indigo">
+                        <i class="fas fa-times-circle"></i>
+                        <h3>Failed</h3>
+                        <span id="failedRequests">0</span>
+                    </div>
+                    <div class="stat-card blue">
+                        <i class="fas fa-clock"></i>
+                        <h3>Last Activity</h3>
+                        <span id="lastActivity">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bug Android View (hidden by default) -->
+            <div id="bugAndroidSection" class="hidden-section">
+                <div class="bug-form-container animate__animated animate__fadeIn">
+                    <h2><i class="fas fa-bug"></i> Bug Android</h2>
+                    <p>Kirim bug ke target WhatsApp Android</p>
+                    
+                    <div class="form-group">
+                        <label for="targetNumber">Nomor Target (628xxxx)</label>
+                        <input type="text" id="targetNumber" class="input-field" placeholder="628xxxxxxxxxx">
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <div id="methodSelection" class="hidden">
+                        <h3>Pilih Metode:</h3>
+                        <div class="method-grid">
+                            <button class="method-card" data-method="impossible">
+                                <i class="fas fa-fire"></i>
+                                <span>Impossible</span>
+                            </button>
+                            <button class="method-card" data-method="crash">
+                                <i class="fas fa-bomb"></i>
+                                <span>Crash</span>
+                            </button>
+                            <button class="method-card" data-method="freeze">
+                                <i class="fas fa-snowflake"></i>
+                                <span>Freeze</span>
+                            </button>
+                            <button class="method-card" data-method="spam">
+                                <i class="fas fa-envelope"></i>
+                                <span>Spam</span>
+                            </button>
+                        </div>
+                        
+                        <button id="sendBugButton" class="action-button">
+                            <span>Kirim Bug</span>
+                            <div class="button-liquid"></div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="bugLogs" class="logs-container hidden">
+                    <h3><i class="fas fa-clipboard-list"></i> Logs</h3>
+                    <div class="logs-content" id="bugLogsContent">
+                        <!-- Logs will appear here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs View (hidden by default) -->
+            <div id="logsSection" class="hidden-section">
+                <div class="logs-header">
+                    <h2><i class="fas fa-history"></i> Activity Logs</h2>
+                    <button id="refreshLogs" class="refresh-button">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="logs-content" id="activityLogs">
+                    <!-- Activity logs will appear here -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="floating-notification" id="notification"></div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

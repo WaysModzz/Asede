@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MajesticXg - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body class="login-page">
+    <div class="purple-gradient-bg"></div>
+    
+    <div class="login-container animate__animated animate__fadeIn">
+        <div class="logo-container">
+            <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#9c27b0" d="M100,0 C155.228,0 200,44.772 200,100 C200,155.228 155.228,200 100,200 C44.772,200 0,155.228 0,100 C0,44.772 44.772,0 100,0 Z M80,140 L80,60 L120,60 L120,100 L140,80 L140,120 L120,100 L120,140 L80,140 Z"/>
+            </svg>
+            <h1 class="logo-text">Majestic<span>Xg</span></h1>
+            <p class="tagline">WhatsApp Gateway Premium</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required class="input-field">
+                <div class="input-underline"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required class="input-field">
+                <div class="input-underline"></div>
+            </div>
+            
+            <button type="submit" class="login-button">
+                <span>Login</span>
+                <div class="button-liquid"></div>
+            </button>
+            
+            <div id="loginError" class="error-message"></div>
+        </form>
+        
+        <div class="login-footer">
+            <p>© 2023 MajesticXg - All rights reserved</p>
+        </div>
+    </div>
+    
+    <div class="particles-container" id="particles-js"></div>
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

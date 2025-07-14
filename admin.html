@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MajesticXg - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body class="admin-page">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#9c27b0" d="M100,0 C155.228,0 200,44.772 200,100 C200,155.228 155.228,200 100,200 C44.772,200 0,155.228 0,100 C0,44.772 44.772,0 100,0 Z M80,140 L80,60 L120,60 L120,100 L140,80 L140,120 L120,100 L120,140 L80,140 Z"/>
+            </svg>
+            <h2>Majestic<span>Xg</span></h2>
+        </div>
+        
+        <nav class="sidebar-menu">
+            <ul>
+                <li class="active"><a href="#bot-management"><i class="fas fa-robot"></i> Bot Management</a></li>
+                <li><a href="#user-management"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="#server-settings"><i class="fas fa-server"></i> Server Settings</a></li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar admin">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <span class="username" id="adminUsername">Admin</span>
+                    <span class="user-status">Administrator</span>
+                </div>
+            </div>
+            <button id="adminLogoutButton" class="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </div>
+    
+    <main class="main-content">
+        <div class="content-header">
+            <h1 id="adminPageTitle">Bot Management</h1>
+            <div class="server-status">
+                <span class="status-indicator active"></span>
+                <span>Server Status: <span id="adminServerStatus">Online</span></span>
+                <span class="uptime">Uptime: <span id="adminServerUptime">00:00:00</span></span>
+            </div>
+        </div>
+        
+        <div class="admin-content" id="adminContent">
+            <!-- Bot Management View -->
+            <div id="botManagementSection" class="admin-section animate__animated animate__fadeIn">
+                <div class="admin-card">
+                    <h2><i class="fas fa-robot"></i> Pairing Bot WhatsApp</h2>
+                    <p>Hubungkan bot WhatsApp baru ke sistem</p>
+                    
+                    <div class="form-group">
+                        <label for="botNumber">Nomor WhatsApp Bot (628xxxx)</label>
+                        <input type="text" id="botNumber" class="input-field" placeholder="628xxxxxxxxxx">
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <button id="requestPairingButton" class="action-button">
+                        <span>Request Pairing Code</span>
+                        <div class="button-liquid"></div>
+                    </button>
+                    
+                    <div id="pairingResult" class="hidden">
+                        <div class="pairing-code-container">
+                            <h3>Pairing Code:</h3>
+                            <div class="pairing-code" id="pairingCodeDisplay">- - - - -</div>
+                            <p class="pairing-instructions">
+                                Masukkan kode ini di WhatsApp bot Anda dalam waktu 2 menit
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connected-bots">
+                    <h3><i class="fas fa-link"></i> Connected Bots</h3>
+                    <div class="bots-list" id="connectedBotsList">
+                        <!-- Connected bots will appear here -->
+                        <div class="no-bots">
+                            <i class="fas fa-robot"></i>
+                            <p>Tidak ada bot yang terhubung</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Management View (hidden by default) -->
+            <div id="userManagementSection" class="admin-section hidden-section">
+                <div class="admin-card">
+                    <h2><i class="fas fa-user-plus"></i> Tambah User Baru</h2>
+                    <p>Buat akun baru untuk mengakses dashboard</p>
+                    
+                    <div class="form-group">
+                        <label for="newUsername">Username</label>
+                        <input type="text" id="newUsername" class="input-field" placeholder="Username">
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">Password</label>
+                        <input type="password" id="newPassword" class="input-field" placeholder="Password">
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userRole">Role</label>
+                        <select id="userRole" class="input-field">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <button id="createUserButton" class="action-button">
+                        <span>Create User</span>
+                        <div class="button-liquid"></div>
+                    </button>
+                </div>
+                
+                <div class="users-list">
+                    <h3><i class="fas fa-users"></i> Daftar User</h3>
+                    <div class="table-container">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Users will be listed here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="floating-notification" id="adminNotification"></div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
