@@ -1,12 +1,10 @@
+// Konfigurasi JSONBIN.io
+const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+const JSONBIN_API_KEY = '$2a$10$5qjBcGPykZ9qn.1yqHumA.z1H/vpoGv0ER43u1A2KkgINVD1Ov8cq'; // Ganti dengan API key Anda
+const JSONBIN_BIN_ID = '6874dd826063391d31ad52b1'; // Ganti dengan bin ID Anda
 
 let appData = {
-    users: [
-        {
-            username: "admin",
-            password: "admin123", // ← password admin
-            role: "admin"
-        }
-    ],
+    users: []
     bots: [],
     logs: [],
     settings: {}
@@ -533,6 +531,111 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Admin panel
             document.title = `MajesticXg - Admin Panel`;
             
+                        // Navigation
+            document.querySelectorAll('.sidebar-menu li a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('href').substring(1);
+                    
+                    // Sembunyikan semua section
+                    document.querySelectorAll('.hidden-section').forEach(section => {
+                        section.classList.add('hidden-section');
+                    });
+                    
+                    // Tampilkan section yang dipilih
+                    document.getElementById(`${sectionId}Section`).classList.remove('hidden-section');
+                    
+                    // Update active menu
+                    document.querySelectorAll('.sidebar-menu li').forEach(li => {
+                        li.classList.remove('active');
+                    });
+                    
+                    this.parentElement.classList.add('active');
+                    
+                    // Update judul halaman
+                    document.getElementById('pageTitle').textContent = 
+                        this.textContent.replace(/<i.*?<\/i>/, '').trim();
+                    
+                    // Jika section logs, muat logs
+                    if (sectionId === 'logs') {
+                        loadLogs();
+                    }
+                    
+                    // Jika section bug android, reset form
+                    if (sectionId === 'bug-android') {
+                        document.getElementById('targetNumber').value = '';
+                        document.getElementById('methodSelection').classList.add('hidden');
+                        document.getElementById('bugLogs').classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Event listener untuk input nomor target
+            const targetNumberInput = document.getElementById('targetNumber');
+            if (targetNumberInput) {
+                targetNumberInput.addEventListener('input', function() {
+                    if (this.value.length >= 3) {
+                        document.getElementById('methodSelection').classList.remove('hidden');
+                    } else {
+                        document.getElementById('methodSelection').classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Event listener untuk method selection
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.method-card').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+            
+            // Event listener untuk send bug button
+            const sendBugButton = document.getElementById('sendBugButton');
+            if (sendBugButton) {
+                sendBugButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    const targetNumber = document.getElementById('targetNumber').value;
+                    const selectedMethod = document.querySelector('.method-card.active')?.dataset.method;
+                    
+                    if (!targetNumber || !selectedMethod) {
+                        showNotification('Harap isi nomor target dan pilih metode', 'error');
+                        return;
+                    }
+                    
+                    // Validasi nomor (minimal 10 digit)
+                    if (targetNumber.length < 10) {
+                        showNotification('Nomor target tidak valid', 'error');
+                        return;
+                    }
+                    
+                    // Tampilkan logs container
+                    document.getElementById('bugLogs').classList.remove('hidden');
+                    
+                    // Kirim bug
+                    const success = await sendBug(targetNumber, selectedMethod);
+                    
+                    if (success) {
+                        showNotification('Bug berhasil dikirim', 'success');
+                    } else {
+                        showNotification('Gagal mengirim bug', 'error');
+                    }
+                });
+            }
+            
+            // Event listener untuk refresh logs
+            const refreshLogsButton = document.getElementById('refreshLogs');
+            if (refreshLogsButton) {
+                refreshLogsButton.addEventListener('click', loadLogs);
+            }
+            
+        } else if (window.location.pathname.endsWith('admin.html')) {
+            // Admin panel
+            document.title = `MajesticXg - Admin Panel`;
+            
             // Navigation
             document.querySelectorAll('.sidebar-menu li a').forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -544,4 +647,183 @@ document.addEventListener('DOMContentLoaded', async function() {
                         section.classList.add('hidden-section');
                     });
                     
+                    // Tampilkan section yang dipilih
+                    document.getElementById(`${sectionId}Section`).classList.remove('hidden-section');
+                    
+                    // Update active menu
+                    document.querySelectorAll('.sidebar-menu li').forEach(li => {
+                        li.classList.remove('active');
+                    });
+                    
+                    this.parentElement.classList.add('active');
+                    
+                    // Update judul halaman
+                    document.getElementById('adminPageTitle').textContent = 
+                        this.textContent.replace(/<i.*?<\/i>/, '').trim();
+                    
+                    // Jika section user management, muat daftar user
+                    if (sectionId === 'user-management') {
+                        loadUsers();
+                    }
+                    
+                    // Jika section bot management, muat daftar bot
+                    if (sectionId === 'bot-management') {
+                        loadBots();
+                    }
+                });
+            });
+            
+            // Event listener untuk request pairing button
+            const requestPairingButton = document.getElementById('requestPairingButton');
+            if (requestPairingButton) {
+                requestPairingButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    const phoneNumber = document.getElementById('botNumber').value;
+                    
+                    if (!phoneNumber) {
+                        showNotification('Harap masukkan nomor WhatsApp bot', 'error', adminNotification);
+                        return;
+                    }
+                    
+                    // Validasi nomor (minimal 10 digit)
+                    if (phoneNumber.length < 10) {
+                        showNotification('Nomor WhatsApp tidak valid', 'error', adminNotification);
+                        return;
+                    }
+                    
+                    // Tampilkan loading
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                    this.disabled = true;
+                    
+                    // Request pairing code
+                    const success = await requestPairingCode(phoneNumber);
+                    
+                    // Reset button
+                    this.innerHTML = '<span>Request Pairing Code</span><div class="button-liquid"></div>';
+                    this.disabled = false;
+                });
+            }
+            
+            // Event listener untuk create user button
+            const createUserButton = document.getElementById('createUserButton');
+            if (createUserButton) {
+                createUserButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('newUsername').value;
+                    const password = document.getElementById('newPassword').value;
+                    const role = document.getElementById('userRole').value;
+                    
+                    // Tampilkan loading
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuat...';
+                    this.disabled = true;
+                    
+                    // Buat user baru
+                    const success = await createUser(username, password, role);
+                    
+                    // Reset button
+                    this.innerHTML = '<span>Create User</span><div class="button-liquid"></div>';
+                    this.disabled = false;
+                    
+                    // Reset form jika berhasil
+                    if (success) {
+                        document.getElementById('newUsername').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('userRole').value = 'user';
+                    }
+                });
+            }
+            
+            // Load data awal
+            loadBots();
+            loadUsers();
+        }
         
+        // Start uptime counter
+        startUptimeCounter();
+    }
+    
+    // Event listener untuk login form
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                loginError.textContent = 'Username dan password harus diisi';
+                loginError.classList.add('show');
+                return;
+            }
+            
+            // Tampilkan loading
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Masuk...';
+            submitButton.disabled = true;
+            
+            // Coba login
+            const success = await login(username, password);
+            
+            if (!success) {
+                loginError.textContent = 'Username atau password salah';
+                loginError.classList.add('show');
+                
+                // Reset button
+                submitButton.innerHTML = '<span>Login</span><div class="button-liquid"></div>';
+                submitButton.disabled = false;
+            }
+        });
+    }
+    
+    // Event listener untuk logout button
+    if (logoutButton) {
+        logoutButton.addEventListener('click', logout);
+    }
+    
+    if (adminLogoutButton) {
+        adminLogoutButton.addEventListener('click', logout);
+    }
+    
+    // Event listener untuk input fields
+    document.querySelectorAll('.input-field').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.querySelector('.input-underline').style.width = '100%';
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.querySelector('.input-underline').style.width = '0';
+            }
+        });
+    });
+});
+
+// Fungsi untuk koneksi WhatsApp Bot (simulasi)
+async function connectWhatsAppBot() {
+    // Ini adalah simulasi - implementasi sebenarnya akan menggunakan @whiskeysockets/baileys
+    console.log('Simulasi koneksi WhatsApp Bot');
+    
+    // Dalam implementasi nyata, Anda akan menggunakan kode seperti ini:
+    /*
+    const { state, saveCreds } = await useMultiFileAuthState("./session");
+    const { version } = await fetchLatestBaileysVersion();
+    
+    const sock = makeWASocket({
+        version,
+        auth: state,
+        printQRInTerminal: true
+    });
+    
+    sock.ev.on('creds.update', saveCreds);
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update;
+        if (connection === 'close') {
+            // Handle reconnect
+        } else if (connection === 'open') {
+            console.log('Bot terhubung');
+        }
+    });
+    */
+}
