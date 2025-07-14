@@ -3,12 +3,12 @@ const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
 const JSONBIN_API_KEY = '$2a$10$XUq3HXfTH5s7AacclGHfW.THmfmqou.e8ZB9qn8j6izAbJyn43j5C'; // Ganti dengan API key Anda
 const JSONBIN_BIN_ID = '6874dbae2831eb7543c6777b'; // Ganti dengan bin ID Anda
 
-// Data Aplikasi Lokal
+// Data Aplikasi
 let appData = {
-  "users": [],
-  "bots": [],
-  "logs": [],
-  "settings": {}
+    users: [],
+    bots: [],
+    logs: [],
+    settings: {}
 };
 
 // DOM Elements
@@ -16,34 +16,129 @@ const loginForm = document.getElementById('loginForm');
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
 const loginError = document.getElementById('loginError');
+const logoutButton = document.getElementById('logoutButton');
+const adminLogoutButton = document.getElementById('adminLogoutButton');
+const notification = document.getElementById('notification');
+const adminNotification = document.getElementById('adminNotification');
 
-// Fungsi login lokal
+// Fungsi untuk menampilkan notifikasi
+function showNotification(message, type = 'info', element = notification) {
+    element.textContent = message;
+    element.style.borderLeftColor = `var(--${type}-color)`;
+    element.classList.add('show');
+    
+    setTimeout(() => {
+        element.classList.remove('show');
+    }, 3000);
+}
+
+// Fungsi untuk memuat data dari JSONBIN.io
+async function loadData() {
+    try {
+        const response = await fetch(`${JSONBIN_BASE_URL}/${JSONBIN_BIN_ID}/latest`, {
+            headers: {
+                'X-Master-Key': JSONBIN_API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Gagal memuat data');
+        
+        const data = await response.json();
+        appData = data.record;
+        
+        // Jika data kosong, inisialisasi dengan data default
+        if (!appData.users) appData.users = [];
+        if (!appData.bots) appData.bots = [];
+        if (!appData.logs) appData.logs = [];
+        if (!appData.settings) appData.settings = {};
+        
+        return true;
+    } catch (error) {
+        console.error('Error loading data:', error);
+        return false;
+    }
+}
+
+// Fungsi untuk menyimpan data ke JSONBIN.io
+async function saveData() {
+    try {
+        const response = await fetch(`${JSONBIN_BASE_URL}/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'X-Master-Key': JSONBIN_API_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(appData)
+        });
+        
+        if (!response.ok) throw new Error('Gagal menyimpan data');
+        
+        return true;
+    } catch (error) {
+        console.error('Error saving data:', error);
+        return false;
+    }
+}
+
+// Fungsi untuk login
 async function login(username, password) {
+    await loadData();
+    
     const user = appData.users.find(u => u.username === username && u.password === password);
-
+    
     if (user) {
+        // Simpan sesi login
         localStorage.setItem('loggedInUser', JSON.stringify(user));
-        window.location.href = user.role === 'admin' ? 'admin.html' : 'home.html';
+        
+        // Tambahkan log
+        appData.logs.push({
+            timestamp: new Date().toISOString(),
+            event: 'login',
+            username: user.username,
+            message: 'User logged in successfully'
+        });
+        
+        await saveData();
+        
+        // Redirect berdasarkan role
+        if (user.role === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'home.html';
+        }
+        
         return true;
     }
-
+    
     return false;
 }
 
-// Cek sesi login
-function checkLogin() {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    if (!user) {
-        window.location.href = 'index.html';
-        return;
-    }
-    return user;
-}
-
-// Logout
+// Fungsi untuk logout
 function logout() {
     localStorage.removeItem('loggedInUser');
     window.location.href = 'index.html';
+}
+
+// Fungsi untuk memeriksa sesi login
+function checkLogin() {
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    
+    if (!user) {
+        logout();
+        return;
+    }
+    
+    // Update UI berdasarkan role
+    if (document.getElementById('loggedInUser')) {
+        document.getElementById('loggedInUser').textContent = user.username;
+    }
+    
+    if (document.getElementById('adminUsername')) {
+        document.getElementById('adminUsername').textContent = user.username;
+    }
+    
+    return user;
 }
 
 // Fungsi untuk menangani bug Android
@@ -448,183 +543,4 @@ document.addEventListener('DOMContentLoaded', async function() {
                         section.classList.add('hidden-section');
                     });
                     
-                    // Tampilkan section yang dipilih
-                    document.getElementById(`${sectionId}Section`).classList.remove('hidden-section');
-                    
-                    // Update active menu
-                    document.querySelectorAll('.sidebar-menu li').forEach(li => {
-                        li.classList.remove('active');
-                    });
-                    
-                    this.parentElement.classList.add('active');
-                    
-                    // Update judul halaman
-                    document.getElementById('adminPageTitle').textContent = 
-                        this.textContent.replace(/<i.*?<\/i>/, '').trim();
-                    
-                    // Jika section user management, muat daftar user
-                    if (sectionId === 'user-management') {
-                        loadUsers();
-                    }
-                    
-                    // Jika section bot management, muat daftar bot
-                    if (sectionId === 'bot-management') {
-                        loadBots();
-                    }
-                });
-            });
-            
-            // Event listener untuk request pairing button
-            const requestPairingButton = document.getElementById('requestPairingButton');
-            if (requestPairingButton) {
-                requestPairingButton.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    
-                    const phoneNumber = document.getElementById('botNumber').value;
-                    
-                    if (!phoneNumber) {
-                        showNotification('Harap masukkan nomor WhatsApp bot', 'error', adminNotification);
-                        return;
-                    }
-                    
-                    // Validasi nomor (minimal 10 digit)
-                    if (phoneNumber.length < 10) {
-                        showNotification('Nomor WhatsApp tidak valid', 'error', adminNotification);
-                        return;
-                    }
-                    
-                    // Tampilkan loading
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                    this.disabled = true;
-                    
-                    // Request pairing code
-                    const success = await requestPairingCode(phoneNumber);
-                    
-                    // Reset button
-                    this.innerHTML = '<span>Request Pairing Code</span><div class="button-liquid"></div>';
-                    this.disabled = false;
-                });
-            }
-            
-            // Event listener untuk create user button
-            const createUserButton = document.getElementById('createUserButton');
-            if (createUserButton) {
-                createUserButton.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    
-                    const username = document.getElementById('newUsername').value;
-                    const password = document.getElementById('newPassword').value;
-                    const role = document.getElementById('userRole').value;
-                    
-                    // Tampilkan loading
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuat...';
-                    this.disabled = true;
-                    
-                    // Buat user baru
-                    const success = await createUser(username, password, role);
-                    
-                    // Reset button
-                    this.innerHTML = '<span>Create User</span><div class="button-liquid"></div>';
-                    this.disabled = false;
-                    
-                    // Reset form jika berhasil
-                    if (success) {
-                        document.getElementById('newUsername').value = '';
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('userRole').value = 'user';
-                    }
-                });
-            }
-            
-            // Load data awal
-            loadBots();
-            loadUsers();
-        }
         
-        // Start uptime counter
-        startUptimeCounter();
-    }
-    
-    // Event listener untuk login form
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            
-            if (!username || !password) {
-                loginError.textContent = 'Username dan password harus diisi';
-                loginError.classList.add('show');
-                return;
-            }
-            
-            // Tampilkan loading
-            const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Masuk...';
-            submitButton.disabled = true;
-            
-            // Coba login
-            const success = await login(username, password);
-            
-            if (!success) {
-                loginError.textContent = 'Username atau password salah';
-                loginError.classList.add('show');
-                
-                // Reset button
-                submitButton.innerHTML = '<span>Login</span><div class="button-liquid"></div>';
-                submitButton.disabled = false;
-            }
-        });
-    }
-    
-    // Event listener untuk logout button
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
-    }
-    
-    if (adminLogoutButton) {
-        adminLogoutButton.addEventListener('click', logout);
-    }
-    
-    // Event listener untuk input fields
-    document.querySelectorAll('.input-field').forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.querySelector('.input-underline').style.width = '100%';
-        });
-        
-        input.addEventListener('blur', function() {
-            if (!this.value) {
-                this.parentElement.querySelector('.input-underline').style.width = '0';
-            }
-        });
-    });
-});
-
-// Fungsi untuk koneksi WhatsApp Bot (simulasi)
-async function connectWhatsAppBot() {
-    // Ini adalah simulasi - implementasi sebenarnya akan menggunakan @whiskeysockets/baileys
-    console.log('Simulasi koneksi WhatsApp Bot');
-    
-    // Dalam implementasi nyata, Anda akan menggunakan kode seperti ini:
-    /*
-    const { state, saveCreds } = await useMultiFileAuthState("./session");
-    const { version } = await fetchLatestBaileysVersion();
-    
-    const sock = makeWASocket({
-        version,
-        auth: state,
-        printQRInTerminal: true
-    });
-    
-    sock.ev.on('creds.update', saveCreds);
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect } = update;
-        if (connection === 'close') {
-            // Handle reconnect
-        } else if (connection === 'open') {
-            console.log('Bot terhubung');
-        }
-    });
-    */
-}
