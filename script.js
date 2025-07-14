@@ -7,11 +7,10 @@ const JSONBIN_BIN_ID = '6874d6f45af03216a7d2887c'; // Ganti dengan bin ID Anda
 let appData = {
     users: [
         { username: "admin", password: "admin123", role: "admin" },
-        { username: "user", password: "123456", role: "user" }
+        { username: "user", password: "123456", role: "user" }]
         bots: [],
     logs: [],
     settings: {}
-    ]
 };
 
 // DOM Elements
