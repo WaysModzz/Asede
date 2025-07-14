@@ -4,7 +4,13 @@ const JSONBIN_API_KEY = '$2a$10$5qjBcGPykZ9qn.1yqHumA.z1H/vpoGv0ER43u1A2KkgINVD1
 const JSONBIN_BIN_ID = '6874dd826063391d31ad52b1'; // Ganti dengan bin ID Anda
 
 let appData = {
-    users: []
+    users: [
+        {
+            username: "admin",
+            password: "admin123", // ← password admin
+            role: "admin"
+        }
+    ],
     bots: [],
     logs: [],
     settings: {}
