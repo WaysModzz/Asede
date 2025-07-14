@@ -1,16 +1,10 @@
 // Konfigurasi JSONBIN.io
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
-const JSONBIN_API_KEY = '$2a$10$5qjBcGPykZ9qn.1yqHumA.z1H/vpoGv0ER43u1A2KkgINVD1Ov8cq'; // Ganti dengan API key Anda
+const JSONBIN_API_KEY = '$2a$10$rqacnw0a5s9QH.3HAsQf4uZSmp2EijtbOx2X.kWbleeKHSKdVVPAy'; // Ganti dengan API key Anda
 const JSONBIN_BIN_ID = '6874dd826063391d31ad52b1'; // Ganti dengan bin ID Anda
 
 let appData = {
-    users: [
-        {
-            username: "admin",
-            password: "admin123", // ← password admin
-            role: "admin"
-        }
-    ],
+    users: [],
     bots: [],
     logs: [],
     settings: {}
