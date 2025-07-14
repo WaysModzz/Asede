@@ -1,7 +1,7 @@
 // Konfigurasi JSONBIN.io
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
 const JSONBIN_API_KEY = '$2a$10$XUq3HXfTH5s7AacclGHfW.THmfmqou.e8ZB9qn8j6izAbJyn43j5C'; // Ganti dengan API key Anda
-const JSONBIN_BIN_ID = '6874dbae2831eb7543c6777b'; // Ganti dengan bin ID Anda
+const JSONBIN_BIN_ID = '6874dd826063391d31ad52b1'; // Ganti dengan bin ID Anda
 
 // Data Aplikasi
 let appData = {
